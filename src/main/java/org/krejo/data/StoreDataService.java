@@ -39,7 +39,7 @@ public class StoreDataService {
         StoreResource storeResource = new StoreResource();
         storeResource.setName(store.getName());
         storeResource.setStreet(store.getAddress().getStreet());
-        storeResource.setProductList(store.getProductList());
+        storeResource.setProductList(productDataService.convertProductListToProductResourceList(store.getProductList()));
         storeResource.setId(store.getId());
         storeResource.setHouseNumber(store.getAddress().getHouseNumber());
         storeResource.setZipCode(store.getAddress().getZipCode());
@@ -67,16 +67,13 @@ public class StoreDataService {
     }
 
     public StoreResource addStore(StoreDTO storeDTO) throws StoreBadDTOException, ProductBadDTOException {
-        StoreResource storeResource = new StoreResource();
+        Store store = new Store();
         checkStoreDTO(storeDTO);
-        storeResource.setId(-1);
-        storeResource.setName(storeDTO.getName());
-        storeResource.setStreet(storeDTO.getAddress().getStreet());
-        storeResource.setHouseNumber(storeDTO.getAddress().getHouseNumber());
-        storeResource.setZipCode(storeDTO.getAddress().getZipCode());
-        storeResource.setProductList(productDataService.convertProductListToProductResourceList(productDataService.convertProductDTOListToProductList(storeDTO.getProductList())));
+        store.setId(-1);
+        store.setName(storeDTO.getName());
+        store.setProductList(productDataService.convertProductDTOListToProductList(storeDTO.getProductList()));
 
-        StoreEntity storeEntity = this.storeRepo.save(convertStoreToStoreEntity(storeResource));
+        StoreEntity storeEntity = this.storeRepo.save(convertStoreToStoreEntity(store));
         return convertStoreToStoreResource(convertStoreEntityToStore(storeEntity));
     }
 
@@ -113,15 +110,20 @@ public class StoreDataService {
         return string == null || string.equals("");
     }
 
-    public StoreResource editStore(int storeId, StoreDTO storeDTO) throws StoreBadDTOException {
-        StoreResource storeResource = new StoreResource();
+    public StoreResource editStore(int storeId, StoreDTO storeDTO) throws StoreBadDTOException, ProductBadDTOException, StoreEntityNotFoundException {
+        Optional<StoreEntity> storeEntity = storeRepo.findById(storeId);
+        if (storeEntity.isEmpty()) {
+            throw new StoreEntityNotFoundException("Store " + storeId + " does not exist");
+        }
+        Store store = convertStoreEntityToStore(storeEntity.get());
+
         checkStoreDTO(storeDTO);
-        storeResource.setId(storeId);
-        storeResource.setName(storeResource.getName());
-        storeResource.setStreet(storeDTO.getAddress().getStreet());
-        storeResource.setHouseNumber(storeDTO.getAddress().getHouseNumber());
-        storeResource.setZipCode(storeDTO.getAddress().getZipCode());
-        storeResource.setProductList(storeDTO.getProductList());
+
+        store.setName(storeDTO.getName());
+        store.setAddress(addressDataService.convertAddressDTOToAddress(storeDTO.getAddress()));
+        store.setProductList(productDataService.convertProductDTOListToProductList(storeDTO.getProductList()));
+
+        return convertStoreToStoreResource(store);
     }
 }
 

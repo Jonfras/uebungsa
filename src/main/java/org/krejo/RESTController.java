@@ -46,7 +46,7 @@ public class RESTController {
     public StoreResource editStore(
             @PathVariable int storeId,
             @RequestBody StoreDTO storeDTO
-    ) {
+    ) throws ProductBadDTOException, StoreBadDTOException, StoreEntityNotFoundException {
         return storeDataService.editStore(storeId, storeDTO);
     }
 }
