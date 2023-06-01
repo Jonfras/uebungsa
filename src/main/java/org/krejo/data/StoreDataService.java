@@ -71,6 +71,7 @@ public class StoreDataService {
         checkStoreDTO(storeDTO);
         store.setId(-1);
         store.setName(storeDTO.getName());
+        store.setAddress(addressDataService.convertAddressDTOToAddress(storeDTO.getAddress()));
         store.setProductList(productDataService.convertProductDTOListToProductList(storeDTO.getProductList()));
 
         StoreEntity storeEntity = this.storeRepo.save(convertStoreToStoreEntity(store));
