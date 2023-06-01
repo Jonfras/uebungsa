@@ -56,6 +56,18 @@
             <version>1.18.22</version>
             <scope>provided</scope>
         </dependency>
+        <!-- dua de vllt wieder ausa -->
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>2.3.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
 
     </dependencies>
 

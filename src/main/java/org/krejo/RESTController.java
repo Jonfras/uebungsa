@@ -41,4 +41,12 @@ public class RESTController {
             ) throws StoreBadDTOException, ProductBadDTOException {
         return storeDataService.addStore(storeDTO);
     }
+
+    @PutMapping("/stores/{storeId}")
+    public StoreResource editStore(
+            @PathVariable int storeId,
+            @RequestBody StoreDTO storeDTO
+    ) {
+        return storeDataService.editStore(storeId, storeDTO);
+    }
 }

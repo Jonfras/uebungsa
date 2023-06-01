@@ -5,6 +5,7 @@ import org.krejo.data.exception.StoreBadDTOException;
 import org.krejo.data.product.Product;
 import org.krejo.data.product.ProductDTO;
 import org.krejo.data.product.ProductEntity;
+import org.krejo.data.product.ProductResource;
 import org.krejo.data.store.StoreDTO;
 import org.krejo.database.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class ProductDataService {
         List<Product> productList = new ArrayList<>();
         for (ProductDTO p :
                 productDTOS) {
-            Product product = convertProductDTOToProduct(p);
+            productList.add(convertProductDTOToProduct(p));
         }
         return productList;
     }
@@ -60,6 +61,48 @@ public class ProductDataService {
     }
 
     public List<Product> convertProductEntityListToProductList(List<ProductEntity> productEntityList) {
+        List<Product> productList = new ArrayList<>();
 
+        for (ProductEntity productEntity :
+                productEntityList) {
+            Product product = convertProductEntityToProduct(productEntity);
+            productList.add(product);
+        }
+        return productList;
+    }
+
+    private Product convertProductEntityToProduct(ProductEntity productEntity) {
+        Product product = new Product();
+
+        product.setId(productEntity.getId());
+        product.setName(productEntity.getName());
+        product.setPrice(productEntity.getPrice());
+        product.setManufacturer(productEntity.getManufacturer());
+        product.setInventoryCount(productEntity.getInventoryCount());
+
+        return product;
+    }
+
+
+    public List<ProductResource> convertProductListToProductResourceList(List<Product> products) {
+        List<ProductResource> productResourceList = new ArrayList<>();
+
+        for (Product product :
+                products) {
+            productResourceList.add(convertProductToProductResource(product));
+        }
+        return productResourceList;
+    }
+
+    private ProductResource convertProductToProductResource(Product product) {
+        ProductResource productResource = new ProductResource();
+
+        productResource.setId(product.getId());
+        productResource.setName(product.getName());
+        productResource.setPrice(product.getPrice());
+        productResource.setManufacturer(product.getManufacturer());
+        productResource.setInventoryCount(product.getInventoryCount());
+
+        return productResource;
     }
 }
