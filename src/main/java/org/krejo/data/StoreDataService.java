@@ -1,8 +1,12 @@
 package org.krejo.data;
 
-import org.krejo.data.address.Address;
-import org.krejo.data.address.AddressEntity;
+import org.krejo.data.exception.ProductBadDTOException;
+import org.krejo.data.exception.StoreBadDTOException;
+import org.krejo.data.exception.StoreEntityNotFoundException;
+import org.krejo.data.product.Product;
+import org.krejo.data.product.ProductEntity;
 import org.krejo.data.store.Store;
+import org.krejo.data.store.StoreDTO;
 import org.krejo.data.store.StoreEntity;
 import org.krejo.data.store.StoreResource;
 import org.krejo.database.StoreRepo;
@@ -10,11 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class StoreDataService {
     List<Store> storeList = new ArrayList<>();
     @Autowired
     AddressDataService addressDataService;
+    @Autowired
+    ProductDataService productDataService;
     @Autowired
     private StoreRepo storeRepo;
 
@@ -44,8 +51,61 @@ public class StoreDataService {
         store.setId(storeEntity.getId());
         store.setName(storeEntity.getName());
         store.setAddress(addressDataService.convertAddressEntityToAddress(storeEntity.getAddress()));
+        store.setProductList(productDataService.convertProductEntityToProduct(storeEntity.getProductEntityList()));
         return store;
     }
 
 
+    public StoreResource getStoreResource(int storeId) throws StoreEntityNotFoundException {
+        Optional<StoreEntity> storeEntity = storeRepo.findById(storeId);
+        if (!storeEntity.isPresent()) {
+            throw new StoreEntityNotFoundException(String.format("The store with the id " + storeId + " does not exist!"));
+        }
+        return convertStoreToStoreResource(convertStoreEntityToStore(storeEntity.get()));
+    }
+
+    public StoreResource addStore(StoreDTO storeDTO) throws StoreBadDTOException, ProductBadDTOException {
+        Store newStore = new Store();
+        checkStoreDTO(storeDTO);
+        newStore.setId(-1);
+        newStore.setName(storeDTO.getName());
+        newStore.setAddress(addressDataService.convertAddressDTOToAddress(storeDTO.getAddress()));
+        newStore.setProductList(productDataService.convertProductDTOListToProductList(storeDTO.getProductList()));
+
+        StoreEntity storeEntity = this.storeRepo.save(convertStoreToStoreEntity(newStore));
+        return convertStoreToStoreResource(convertStoreEntityToStore(storeEntity));
+    }
+
+    private StoreEntity convertStoreToStoreEntity(Store newStore) {
+        StoreEntity storeEntity = new StoreEntity();
+        if(newStore.getId() != -1) {
+            storeEntity.setId(newStore.getId());
+        }
+        storeEntity.setName(newStore.getName());
+        storeEntity.setAddress(addressDataService.convertAddressToAddressEntity(newStore.getAddress()));
+        storeEntity.setId(newStore.getId());
+
+        List<ProductEntity> productEntities = new ArrayList<>();
+        for (Product p :
+                newStore.getProductList()) {
+            productEntities.add(productDataService.convertProductToProductEntity(p));
+        }
+        storeEntity.setProductEntityList(productEntities);
+        return storeEntity;
+    }
+
+    private void checkStoreDTO(StoreDTO storeDTO) throws StoreBadDTOException {
+        if(isNullOrEmpty(storeDTO.getName())) {
+            throw new StoreBadDTOException("bad storeDTO");
+        }
+        if(isNullOrEmpty(storeDTO.getAddress().getStreet())) {
+            throw new StoreBadDTOException("bad storeDTO");
+        }
+        if(isNullOrEmpty(storeDTO.getProductList().get(0).getName())) {
+            throw new StoreBadDTOException("bad storeDTO");
+        }
+    }
+    private boolean isNullOrEmpty(String string) {
+        return string == null || string.equals("");
+    }
 }

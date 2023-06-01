@@ -1,7 +1,9 @@
 package org.krejo;
 
 import org.krejo.data.AddressDataService;
+import org.krejo.data.ProductDataService;
 import org.krejo.data.StoreDataService;
+import org.krejo.database.ProductRepo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,6 +18,12 @@ public class AppConfiguration {
     @Bean
     public AddressDataService createAddressDataService() {
         AddressDataService d = new AddressDataService();
+        return d;
+    }
+
+    @Bean
+    public ProductDataService createProductDataService() {
+        ProductDataService d = new ProductDataService();
         return d;
     }
 }

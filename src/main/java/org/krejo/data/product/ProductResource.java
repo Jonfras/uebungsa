@@ -6,7 +6,7 @@ import lombok.Data;
 public class ProductResource {
     private long id;
     private String name;
-    private String manifacturer;
+    private String manufacturer;
     private double price;
     private int inventoryCount;
 }
